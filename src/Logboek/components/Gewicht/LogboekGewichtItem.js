@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 const LogboekGewichtItem = (props) => {
   return (
     <li>
-      <Link to={`/logboek/${props.id}`}>
+      <Link to={`/logboek/`}>
         <p>{props.gewicht}</p>
         <p>{props.datum}</p>
       </Link>

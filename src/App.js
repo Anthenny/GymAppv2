@@ -6,6 +6,7 @@ import UserLogs from "./Logboek/pages/UserLogs";
 import LogboekSpecifiek from "./Logboek/pages/LogboekSpecifiek";
 import Nav from "./shared/components/Navigation/Nav";
 import SideBar from "./shared/components/Navigation/SideBar";
+import UpdateLog from "./Logboek/pages/UpdateLog";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faClipboard, faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
@@ -26,8 +27,11 @@ function App() {
         <Route path="/:userId/logs" exact>
           <UserLogs />
         </Route>
-        <Route path="/logboek/:logId">
+        <Route path="/logboek/:logId" exact>
           <LogboekSpecifiek />
+        </Route>
+        <Route path="/logboek/update/:logId" exact>
+          <UpdateLog />
         </Route>
         <Route path="*">
           <Redirect to="/" />
