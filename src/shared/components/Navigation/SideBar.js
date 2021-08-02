@@ -1,5 +1,5 @@
 import React from "react";
-
+import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import "./SideBar.css";
@@ -17,16 +17,22 @@ const SideBar = () => {
         <div className="sidebar__menu">
           <ul>
             <li>
-              <a className="active" href="#">
+              <NavLink to="/" exact activeClassName="active">
                 <FontAwesomeIcon className="sidebar__icon" icon="clipboard" />
                 Logboek
-              </a>
+              </NavLink>
             </li>
             <li>
-              <a href="#">
+              <NavLink to="/gebruikers" activeClassName="active">
                 <FontAwesomeIcon className="sidebar__icon" icon="user" />
                 Gebruikers
-              </a>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/auth" activeClassName="active">
+                <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
+                Log in
+              </NavLink>
             </li>
             <li>
               <a href="#">

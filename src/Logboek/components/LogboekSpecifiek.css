@@ -1,0 +1,91 @@
+.BG__OVERLAY {
+  opacity: 0.6;
+  background-color: black;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  z-index: 101;
+}
+
+.userLogs__modal {
+  position: absolute;
+  z-index: 1000;
+  background-color: white;
+  margin-top: 100px;
+  margin-left: 400px;
+  border-radius: 10px;
+  width: 60vw;
+  height: 60vh;
+  padding-left: 85px;
+  padding-top: 65px;
+  padding-right: 600px;
+  overflow-y: scroll;
+}
+
+.userLogs__modal .kruis {
+  color: black;
+  position: absolute;
+  right: 50px;
+  font-size: 1.7rem;
+  cursor: pointer;
+}
+
+.userLogs__modal h2 {
+  font-weight: 300;
+  font-size: 1.8rem;
+  margin-bottom: 40px;
+}
+
+.workout__area {
+  height: 60%;
+  width: 140%;
+  border-radius: 10px;
+  background-color: #ececec;
+  overflow-y: scroll;
+  padding-top: 20px;
+  padding-left: 20px;
+}
+
+.workout__area p {
+  font-size: 1.1rem;
+}
+
+.buttons {
+  display: flex;
+}
+
+.buttons .btn {
+  position: absolute;
+  bottom: 40px;
+  width: 140px;
+  height: 50px;
+  background-color: #4528d5;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 1.3rem;
+  font-weight: 300;
+  transition: all 200ms;
+}
+
+.buttons .btn.delete {
+  margin-left: 180px;
+  background-color: white;
+  border: 1px solid crimson;
+  color: black;
+}
+
+.btn:hover {
+  color: #4528d5;
+  border: 1px solid #4528d5;
+  background-color: white;
+}
+
+.btn.delete:hover {
+  background-color: crimson;
+  color: white;
+}

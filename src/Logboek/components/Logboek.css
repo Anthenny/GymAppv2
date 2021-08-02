@@ -4,7 +4,8 @@ main {
   float: right;
   height: 92vh;
   z-index: 100;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url(./background.png);
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+    url(../../shared//BG/background.png);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -105,8 +106,9 @@ main {
   justify-content: space-between;
 }
 
-.recent__workouts__body ul li {
+.recent__workouts__body ul li a {
   display: flex;
   justify-content: space-between;
   margin-top: 5px;
+  color: black;
 }

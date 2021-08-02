@@ -6,7 +6,7 @@ const Nav = () => {
     <nav className="nav">
       <h2>Welkom gebruiker </h2>
       <div className="nav__user__info">
-        <img src="./images/Ellipse 6.png" alt="" />
+        <img src="https://i.im.ge/2021/08/02/Lzzl9.png" alt="" />
         <h4>Anthenny</h4>
       </div>
     </nav>
