@@ -1,0 +1,75 @@
+.sidebar {
+  width: 18vw;
+  position: fixed;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: var(--color-dark);
+  z-index: 100;
+  transition: width 300ms;
+}
+
+.sidebar__container {
+  padding-left: 50px;
+  padding-top: 40px;
+}
+
+.sidebar__brand {
+  display: grid;
+  height: 140px;
+  padding: 1rem 0rem 1rem 2rem;
+  color: #ffff;
+}
+
+.sidebar__brand h1 {
+  margin-bottom: 30px;
+}
+
+.sidebar__brand p.time {
+  padding-left: 2rem;
+  font-size: 1.4rem;
+}
+
+.sidebar__brand p.date {
+  margin-top: 0.5rem;
+  padding-left: 1.3rem;
+  font-size: 1.2rem;
+}
+
+.sidebar__menu li:first-child {
+  margin-top: 3rem;
+}
+
+.sidebar__menu li {
+  display: grid;
+  align-content: center;
+  width: 100%;
+  margin-bottom: 2rem;
+  padding-left: 2rem;
+}
+
+.sidebar__menu a {
+  padding-left: 1rem;
+  display: flex;
+  color: #ffff;
+  font-size: 1.4rem;
+  align-items: center;
+}
+
+.sidebar__menu a.active {
+  background: #ffff;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  color: var(--main-color);
+  border-radius: 11px 0px 0px 11px;
+}
+
+.sidebar__menu a span:first-child {
+  font-size: 1.5rem;
+  padding-right: 1rem;
+}
+
+.sidebar__icon {
+  font-size: 2rem;
+  margin-right: 25px;
+}
