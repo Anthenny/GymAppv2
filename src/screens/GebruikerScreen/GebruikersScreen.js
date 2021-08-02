@@ -1,17 +1,9 @@
 import React, { Fragment } from "react";
-import Nav from "../../shared/components/Nav";
 import SideBar from "../../shared/components/SideBar";
-import GebruikerItem from "./GebruikerItem";
-import "./Gebruikers.css";
+import Nav from "../../shared/components/Nav";
+import "./GebruikersScreen.css";
 
-const GebruikersLijst = (props) => {
-  if (props.items.length === 0) {
-    return (
-      <div className="center">
-        <h2>Geen gebruikers gevonden</h2>
-      </div>
-    );
-  }
+const GebruikersScreen = () => {
   return (
     <Fragment>
       <Nav />
@@ -29,16 +21,15 @@ const GebruikersLijst = (props) => {
               <h4>Laatst gezien</h4>
             </div>
             <ul>
-              {props.items.map((user) => (
-                <GebruikerItem
-                  key={user.id}
-                  id={user.id}
-                  image={user.image}
-                  name={user.name}
-                  lastSeen={user.lastSeen}
-                  workoutCount={user.workouts}
-                />
-              ))}
+              <li>
+                <div className="user__info">
+                  <img src="./images/profilepic.png" alt="" />
+                  <p>Rock Johnson</p>
+                </div>
+                <div className="user__seen">
+                  <p>30-7-2021</p>
+                </div>
+              </li>
             </ul>
           </div>
         </div>
@@ -47,4 +38,4 @@ const GebruikersLijst = (props) => {
   );
 };
 
-export default GebruikersLijst;
+export default GebruikersScreen;
