@@ -29,9 +29,15 @@ const SideBar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/auth" activeClassName="active">
+              <NavLink to="/login" activeClassName="active">
                 <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
                 Log in
+              </NavLink>
+            </li>
+            <li>
+              <NavLink to="/signup" activeClassName="active">
+                <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
+                Sign up
               </NavLink>
             </li>
             <li>

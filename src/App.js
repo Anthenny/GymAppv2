@@ -7,6 +7,8 @@ import LogboekSpecifiek from "./Logboek/pages/LogboekSpecifiek";
 import Nav from "./shared/components/Navigation/Nav";
 import SideBar from "./shared/components/Navigation/SideBar";
 import UpdateLog from "./Logboek/pages/UpdateLog";
+import AuthLogin from "./Gebruiker/pages/AuthLogin";
+import AuthSignup from "./Gebruiker/pages/AuthSignup";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faClipboard, faUser, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
@@ -20,6 +22,12 @@ function App() {
       <Switch>
         <Route path="/" exact>
           <Logboek />
+        </Route>
+        <Route path="/login" exact>
+          <AuthLogin />
+        </Route>
+        <Route path="/signup" exact>
+          <AuthSignup />
         </Route>
         <Route path="/gebruikers" exact>
           <Gebruikers />
