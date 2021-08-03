@@ -20,12 +20,14 @@ const SideBar = () => {
 
         <div className="sidebar__menu">
           <ul>
-            <li>
-              <NavLink to="/" exact activeClassName="active">
-                <FontAwesomeIcon className="sidebar__icon" icon="clipboard" />
-                Logboek
-              </NavLink>
-            </li>
+            {auth.isLoggedIn && (
+              <li>
+                <NavLink to="/" exact activeClassName="active">
+                  <FontAwesomeIcon className="sidebar__icon" icon="clipboard" />
+                  Logboek
+                </NavLink>
+              </li>
+            )}
             <li>
               <NavLink to="/gebruikers" activeClassName="active">
                 <FontAwesomeIcon className="sidebar__icon" icon="user" />
@@ -50,10 +52,10 @@ const SideBar = () => {
             )}
             {auth.isLoggedIn && (
               <li>
-                <a href="#">
+                <NavLink onClick={auth.logout} to="/gebruikers">
                   <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
                   Log out
-                </a>
+                </NavLink>
               </li>
             )}
           </ul>

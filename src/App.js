@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
-import { useState, useCallback } from "react";
+import { useState, useCallback, Fragment } from "react";
 
 import Gebruikers from "./Gebruiker/pages/Gebruikers";
 import Logboek from "./Logboek/pages/Logboek";
@@ -29,11 +29,51 @@ function App() {
 
   let routes;
 
-  // if(isLoggedIn) {
-  //   routes = ();
-  // } else {
-  //   routes = ()
-  // }
+  if (isLoggedIn) {
+    routes = (
+      <Switch>
+        <Route path="/" exact>
+          <Logboek />
+        </Route>
+        <Route path="/gebruikers" exact>
+          <Gebruikers />
+        </Route>
+        <Route path="/:userId/logs" exact>
+          <UserLogs />
+        </Route>
+        <Route path="/logboek/:logId" exact>
+          <LogboekSpecifiek />
+        </Route>
+        <Route path="/logboek/update/:logId" exact>
+          <UpdateLog />
+        </Route>
+        <Redirect to="/" />
+      </Switch>
+    );
+  } else {
+    routes = (
+      <Switch>
+        <Route path="/" exact>
+          <Redirect to="/login" />
+        </Route>
+        <Route path="/login" exact>
+          <AuthLogin />
+        </Route>
+        <Route path="/signup" exact>
+          <AuthSignup />
+        </Route>
+        <Route path="/gebruikers" exact>
+          <Gebruikers />
+        </Route>
+        <Route path="/:userId/logs" exact>
+          <UserLogs />
+        </Route>
+        <Route path="*">
+          <Redirect to="/login" />
+        </Route>
+      </Switch>
+    );
+  }
 
   return (
     // Alles binnen in de provider is gesubscribed op auth-context als de value prop changed weten de components dat ook en worden ze gererenderd
@@ -41,32 +81,7 @@ function App() {
       <Router>
         <Nav />
         <SideBar />
-        <Switch>
-          <Route path="/" exact>
-            <Logboek />
-          </Route>
-          <Route path="/login" exact>
-            <AuthLogin />
-          </Route>
-          <Route path="/signup" exact>
-            <AuthSignup />
-          </Route>
-          <Route path="/gebruikers" exact>
-            <Gebruikers />
-          </Route>
-          <Route path="/:userId/logs" exact>
-            <UserLogs />
-          </Route>
-          <Route path="/logboek/:logId" exact>
-            <LogboekSpecifiek />
-          </Route>
-          <Route path="/logboek/update/:logId" exact>
-            <UpdateLog />
-          </Route>
-          <Route path="*">
-            <Redirect to="/" />
-          </Route>
-        </Switch>
+        {routes}
       </Router>
     </AuthContext.Provider>
   );
