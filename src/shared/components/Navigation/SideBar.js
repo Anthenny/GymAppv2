@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { AuthContext } from "../../context/auth-context";
 
 import "./SideBar.css";
 
 const SideBar = () => {
+  // Je krijgt een object terug die re-renderd als de context veranderd
+  const auth = useContext(AuthContext);
   return (
     <div className="sidebar">
       <div className="sidebar__container">
@@ -28,24 +32,30 @@ const SideBar = () => {
                 Gebruikers
               </NavLink>
             </li>
-            <li>
-              <NavLink to="/login" activeClassName="active">
-                <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
-                Log in
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/signup" activeClassName="active">
-                <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
-                Sign up
-              </NavLink>
-            </li>
-            <li>
-              <a href="#">
-                <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
-                Log out
-              </a>
-            </li>
+            {!auth.isLoggedIn && (
+              <li>
+                <NavLink to="/login" activeClassName="active">
+                  <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
+                  Log in
+                </NavLink>
+              </li>
+            )}
+            {!auth.isLoggedIn && (
+              <li>
+                <NavLink to="/signup" activeClassName="active">
+                  <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
+                  Sign up
+                </NavLink>
+              </li>
+            )}
+            {auth.isLoggedIn && (
+              <li>
+                <a href="#">
+                  <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
+                  Log out
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </div>

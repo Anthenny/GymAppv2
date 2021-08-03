@@ -1,7 +1,8 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useContext } from "react";
 import { Link } from "react-router-dom";
 
 import { validate, VALIDATOR_REQUIRE } from "../../utils/validators";
+import { AuthContext } from "../../shared/context/auth-context";
 import "../components/AuthLogin.css";
 
 const emailReducer = (state, action) => {
@@ -25,6 +26,8 @@ const emailReducer = (state, action) => {
 };
 
 const AuthLogin = () => {
+  const auth = useContext(AuthContext);
+
   const [emailState, dispatch] = useReducer(emailReducer, {
     value: "",
     isTouched: false,
@@ -42,6 +45,8 @@ const AuthLogin = () => {
   const submitLoginHandler = (e) => {
     e.preventDefault();
     if (!emailState.isValid) return console.log("Vul aub geldige waardes in.");
+    // Roep de functie die we hebben gemaakt in app.js die gelinkt is met de provider. deze functie zet in de context de isLoggedIn naar true waardoor de context veranderd en alles ge-rerenderd wordt.
+    auth.login();
     console.log("u wordt ingelogd");
   };
 
