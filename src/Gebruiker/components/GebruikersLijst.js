@@ -18,7 +18,7 @@ const GebruikersLijst = (props) => {
             </h6>
             <div className="gebruikersScreen__users">
               <div className="gebruikersScreen__users__header">
-                <h4>Name</h4>
+                <h4>Naam</h4>
                 <h4>Laatst gezien</h4>
               </div>
               <ul>
@@ -41,18 +41,18 @@ const GebruikersLijst = (props) => {
           </h6>
           <div className="gebruikersScreen__users">
             <div className="gebruikersScreen__users__header">
-              <h4>Name</h4>
+              <h4>Naam</h4>
               <h4>Laatst gezien</h4>
             </div>
             <ul>
-              {props.items.map((user) => (
+              {props.items.map((gebruiker) => (
                 <GebruikerItem
-                  key={user.id}
-                  id={user.id}
-                  image={user.image}
-                  name={user.name}
-                  lastSeen={user.lastSeen}
-                  workoutCount={user.workouts}
+                  key={gebruiker._id}
+                  id={gebruiker._id}
+                  image={gebruiker.image}
+                  naam={gebruiker.naam}
+                  laatstGezien={gebruiker.laatstGezien}
+                  aantalWorkouts={gebruiker.aantalWorkouts}
                 />
               ))}
             </ul>

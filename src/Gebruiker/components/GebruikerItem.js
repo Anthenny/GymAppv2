@@ -9,13 +9,13 @@ const GebruikerItem = (props) => {
     <li>
       <Link to={`/${props.id}/logs`}>
         <div className="user__info">
-          <img src={props.image} alt={props.name} />
-          <p>{props.name}</p>
+          <img src={props.image} alt={props.naam} />
+          <p>{props.naam}</p>
         </div>
       </Link>
 
       <div className="user__seen">
-        <p>{props.lastSeen}</p>
+        <p>{props.laatstGezien}</p>
       </div>
     </li>
   );

@@ -1,73 +1,50 @@
-import React, { useReducer, useContext } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { validate, VALIDATOR_REQUIRE } from "../../utils/validators";
 import { AuthContext } from "../../shared/context/auth-context";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import "../components/AuthLogin.css";
-
-const emailReducer = (state, action) => {
-  switch (action.type) {
-    case "CHANGE":
-      return {
-        ...state,
-        value: action.val,
-        isValid: validate(action.val, action.validators),
-      };
-    case "TOUCH": {
-      return {
-        ...state,
-        isTouched: true,
-      };
-    }
-
-    default:
-      return state;
-  }
-};
 
 const AuthLogin = () => {
   const auth = useContext(AuthContext);
+  const emailInputRef = useRef();
+  const wachtwoordInputRef = useRef();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
-  const [emailState, dispatch] = useReducer(emailReducer, {
-    value: "",
-    isTouched: false,
-    isValid: false,
-  });
-
-  const emailChangeHandler = (e) => {
-    dispatch({ type: "CHANGE", val: e.target.value, validators: [VALIDATOR_REQUIRE()] });
-  };
-
-  const touchHandler = () => {
-    dispatch({ type: "TOUCH" });
-  };
-
-  const submitLoginHandler = (e) => {
+  const submitLoginHandler = async (e) => {
     e.preventDefault();
-    if (!emailState.isValid) return console.log("Vul aub geldige waardes in.");
-    // Roep de functie die we hebben gemaakt in app.js die gelinkt is met de provider. deze functie zet in de context de isLoggedIn naar true waardoor de context veranderd en alles ge-rerenderd wordt.
-    auth.login();
-    console.log("u wordt ingelogd");
+    const enteredEmail = emailInputRef.current.value;
+    const enteredWachtwoord = wachtwoordInputRef.current.value;
+
+    try {
+      await sendRequest(
+        "http://localhost:5000/api/gebruikers/login",
+        "POST",
+        JSON.stringify({
+          email: enteredEmail,
+          wachtwoord: enteredWachtwoord,
+        }),
+        {
+          "Content-Type": "application/json",
+        }
+      );
+      auth.login();
+    } catch (err) {}
   };
 
   return (
     <div className="auth">
+      {isLoading && <LoadingSpinner asOverlay />}
       <div className="auth__form__container">
         <div className="auth__header">
           <h2>Welkom terug !</h2>
           <h4>Log in om door te gaan</h4>
-          {!emailState.isValid && emailState.isTouched && (
-            <p className="error__msg">Vul aub iets in bij uw email</p>
-          )}
+          {error && <p className="error__msg">{error}</p>}
         </div>
         <form onSubmit={submitLoginHandler}>
-          <input
-            type="email"
-            onBlur={touchHandler}
-            onChange={emailChangeHandler}
-            placeholder="Vul uw email in"
-          />
-          <input type="password" placeholder="Vul uw wachtwoord in" />
+          <input type="email" ref={emailInputRef} placeholder="Vul uw email in" />
+          <input type="password" ref={wachtwoordInputRef} placeholder="Vul uw wachtwoord in" />
           <button type="submit">Log in</button>
           <p>
             Heb je geen account? <Link to="/signup">Sign up</Link>

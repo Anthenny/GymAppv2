@@ -1,19 +1,30 @@
-import React from "react";
+import React, { Fragment, useEffect, useState } from "react";
 
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import GebruikersLijst from "../components/GebruikersLijst";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 
 const Gebruikers = () => {
-  const USERS = [
-    {
-      id: "u1",
-      image: "https://i.im.ge/2021/08/02/Lzpc8.png",
-      name: "Rock Johnson",
-      workouts: 25,
-      lastSeen: "1-8-2021",
-    },
-  ];
+  const { isLoading, error, sendRequest } = useHttpClient();
+  const [loadedGebruikers, setLoadedGebruikers] = useState();
 
-  return <GebruikersLijst items={USERS} />;
+  useEffect(() => {
+    const fetchGebruikers = async () => {
+      try {
+        const responseData = await sendRequest("http://localhost:5000/api/gebruikers");
+
+        setLoadedGebruikers(responseData.gebruikers);
+      } catch (err) {}
+    };
+    fetchGebruikers();
+  }, [sendRequest]);
+
+  return (
+    <Fragment>
+      {isLoading && <LoadingSpinner />}
+      {!isLoading && loadedGebruikers && <GebruikersLijst items={loadedGebruikers} />}
+    </Fragment>
+  );
 };
 
 export default Gebruikers;

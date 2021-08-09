@@ -52,10 +52,10 @@ const SideBar = () => {
             )}
             {auth.isLoggedIn && (
               <li>
-                <NavLink onClick={auth.logout} to="/gebruikers">
+                <a onClick={auth.logout} href="#">
                   <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
                   Log out
-                </NavLink>
+                </a>
               </li>
             )}
           </ul>
