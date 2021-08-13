@@ -1,104 +1,153 @@
-const uuid = require("uuid").v4;
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
+const Logboek = require("../models/logboek");
+const Gebruiker = require("../models/gebruiker");
+const mongoose = require("mongoose");
 
-let DUMMYWORKOUTLOGS = [
-  {
-    id: "l1",
-    gebruiker: "Anthenny",
-    gebruikerId: "g1",
-    titel: "Borst",
-    beschrijving:
-      "Bench Press 20 KG warming up 40 KG warming up70 KG werk set 10x70KG werk set 10x Incline Bench 60 KG werk set 10x 60 KG werk set 8x60 KG werk set 6x",
-    datum: "1-8-2021",
-  },
-  {
-    id: "l1",
-    gebruiker: "Anthenny",
-    gebruikerId: "g1",
-    titel: "Benen",
-    beschrijving:
-      "Bench Press 20 KG warming up 40 KG warming up70 KG werk set 10x70KG werk set 10x Incline Bench 60 KG werk set 10x 60 KG werk set 8x60 KG werk set 6x",
-    datum: "1-8-2021",
-  },
-  {
-    id: "l1",
-    gebruiker: "Olaf",
-    gebruikerId: "g2",
-    titel: "Rug",
-    beschrijving:
-      "Bench Press 20 KG warming up 40 KG warming up70 KG werk set 10x70KG werk set 10x Incline Bench 60 KG werk set 10x 60 KG werk set 8x60 KG werk set 6x",
-    datum: "1-8-2021",
-  },
-];
-
-exports.getLogById = (req, res, next) => {
+exports.getLogById = async (req, res, next) => {
   // Deze functie pakt een specifieke log die matchd met het ingevulde id
   const logId = req.params.logId;
-  const log = DUMMYWORKOUTLOGS.find((workout) => workout.id === logId);
-
-  if (!log) {
-    return next(new HttpError("Could not find a log for the requested log", 404));
+  console.log(logId);
+  let log;
+  try {
+    log = await Logboek.findById(logId);
+  } catch (err) {
+    const error = new HttpError("Oops, Er is iets fout gegaan probeer het opnieuw.", 500);
+    return next(error);
   }
-  res.json({ log });
+  if (!log) {
+    return next(new HttpError("Kon de opgevraagde log niet vinden.", 404));
+  }
+  res.json({ log: log });
 };
 
-exports.getLogsByUserId = (req, res, next) => {
+exports.getLogsByUserId = async (req, res, next) => {
   // Deze functie pakt alle logs die matched met de ingevulde gebruiker id.
   const gebruikerId = req.params.gebruikerId;
 
-  const gebruikerLogs = DUMMYWORKOUTLOGS.filter((g) => g.gebruikerId === gebruikerId); // find geeft 1e terug die matched filter geeft een hele nieuwe array terug met alles dat matched
+  let gebruikerMetLogs;
 
-  if (!gebruikerLogs || gebruikerLogs.length === 0) {
-    return next(new HttpError("Could not find a log for the requested log", 404));
+  try {
+    gebruikerMetLogs = await Gebruiker.findById(gebruikerId).populate("logs"); // Zoek voor een gebruiker id en populate de velden binnen in logs.(zodat het meer is dan alleen een id nr.)
+  } catch (err) {
+    console.log(err);
+    return next(new HttpError("Er ging iets fout probeer het opnieuw", 500));
   }
-  res.json({ gebruikerLogs });
+
+  if (!gebruikerMetLogs || gebruikerMetLogs.logs.length === 0)
+    return next(new HttpError("De gebruiker heeft nog geen logs", 404));
+
+  const gebruikerWorkoutLogs = gebruikerMetLogs.logs.filter((log) => log.categorie === "workout");
+  const gebruikerGewichtLogs = gebruikerMetLogs.logs.filter((log) => log.categorie === "gewicht");
+
+  res.json({
+    gebruikerWorkoutLogs: gebruikerWorkoutLogs,
+    gebruikerGewichtLogs: gebruikerGewichtLogs,
+    gebruikerLogs: gebruikerMetLogs,
+  });
 };
 
-exports.createWorkoutLog = (req, res, next) => {
+exports.createLog = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    next(new HttpError("invalid inputs passed, please check your data", 402));
+    next(new HttpError("Vul aub geldige data in", 402));
   }
 
-  const { titel, beschrijving, gebruikerId, gebruiker, datum } = req.body;
-  const createdWorkoutLog = {
-    id: uuid(),
+  const { titel, beschrijving, categorie, maker, datum } = req.body;
+
+  if (!titel || !beschrijving || !maker) return next(new HttpError("Vul aub geldige data in"));
+
+  const createdLog = new Logboek({
     titel,
     beschrijving,
-    gebruikerId,
-    gebruiker,
+    maker,
+    categorie,
     datum,
-  };
+  });
+  let gebruiker;
 
-  console.log(DUMMYWORKOUTLOGS);
-  DUMMYWORKOUTLOGS.push(createdWorkoutLog);
-  console.log(DUMMYWORKOUTLOGS);
+  try {
+    gebruiker = await Gebruiker.findById(maker);
+  } catch (err) {
+    return next(new HttpError("creating log failed please try again"));
+  }
 
-  res.status(201).json({ workoutLog: createdWorkoutLog });
+  if (!gebruiker) return next(new HttpError("Kon geen gebruiker vinden met ingevulde id", 404));
+
+  try {
+    const sess = await mongoose.startSession(); // maak een sessie aan
+    sess.startTransaction(); // start de sessie
+    await createdLog.save({ session: sess }); // sla het op in de sessie
+    gebruiker.logs.push(createdLog); // Speciale mongoose method geen array method. die het achter de schermen het log id toevoegd aan gebruiker document
+    await gebruiker.save({ session: sess }); // sla het op in de sessie
+    await sess.commitTransaction(); // Als alles is gelukt wordt het nu pas opgeslagen in de database. Als 1 ding fout gaat word er niks doorgevoerd in de database.
+    //  Belangrijk de sessie maakt niet automatisch een collectie aan als deze nog niet bestaat.
+  } catch (err) {
+    const error = new HttpError("Kon uw log niet aanmaken, probeer het opniewu");
+    return next(error);
+  }
+
+  res.status(201).json({ workoutLog: createdLog });
 };
 
-exports.updateLog = (req, res) => {
+exports.updateLog = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    next(new HttpError("invalid inputs passed, please check your data", 402));
+    next(new HttpError("Vul aub geldige data in", 402));
   }
 
   const { titel, beschrijving } = req.body;
   const logId = req.params.logId;
 
-  const updatedLog = { ...DUMMYWORKOUTLOGS.find((log) => log.id === logId) }; // maak een copy van dit object
-  const logIndex = DUMMYWORKOUTLOGS.findIndex((log) => log.id === logId);
-  updatedLog.titel = titel;
-  updatedLog.beschrijving = beschrijving;
+  let log;
+  try {
+    log = await Logboek.findById(logId);
+  } catch (err) {
+    const error = new HttpError("Er is iets fout gegaan, probeer het opnieuw", 500);
+    return next(error);
+  }
 
-  DUMMYWORKOUTLOGS[logIndex] = updatedLog;
+  if (log.maker.toString() !== req.gebruikerData.gebruikerId) {
+    return next(new HttpError("U kunt dit niet aanpassen omdat u niet de eigenaar bent.", 401));
+  }
 
-  res.status(200).json({ log: updatedLog });
+  log.titel = titel;
+  log.beschrijving = beschrijving;
+
+  try {
+    log.save();
+  } catch (err) {
+    const error = new HttpError("Er is iets fout gegaan, probeer het opnieuw", 500);
+    return next(error);
+  }
+
+  res.status(200).json({ log: log });
 };
 
-exports.deleteLog = (req, res) => {
+exports.deleteLog = async (req, res) => {
   const logId = req.params.logId;
-  DUMMYWORKOUTLOGS = DUMMYWORKOUTLOGS.filter((l) => l.id !== logId); // als het matched houden we het als het false is droppen we het.
+
+  let log;
+  try {
+    log = await Logboek.findById(logId).populate("maker");
+  } catch (err) {
+    console.log(err);
+    return next(new HttpError("Er ging iets fout probeer het opnieuw", 500));
+  }
+
+  if (!log) return next(new HttpError("Kan de log die u probeert te verwijderen niet vinden", 404));
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await log.remove({ session: sess }); // verwijder de log van de loegboek collectie
+    log.maker.logs.pull(log); // Haalt id weg binnen in de gebruiker collecite
+    await log.maker.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (err) {
+    console.log(err);
+    return next(new HttpError("Kan de plek niet verwijderen", 500));
+  }
+
   res.status(200).json({ message: "deleted" });
 };

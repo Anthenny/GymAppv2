@@ -1,0 +1,8 @@
+{
+  "env": {
+    "DB_USER": "Anthenny",
+    "DB_PASSWORD": "Anthennyanna1997",
+    "DB_NAME": "gymApp",
+    "JWT_KEY": "supersecret"
+  }
+}
