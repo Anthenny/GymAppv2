@@ -1,67 +1,61 @@
-import React, { useReducer } from "react";
+import React, { useRef, useContext } from "react";
+import { useHistory } from "react-router-dom";
 
-import { validate, VALIDATOR_REQUIRE } from "../../../utils/validators";
-import LogboekWorkoutList from "./LogboekWorkoutLijst";
+import { useHttpClient } from "../../../shared/hooks/http-hook";
+import { AuthContext } from "../../../shared/context/auth-context";
+import LoadingSpinner from "../../../shared/components/UIElements/LoadingSpinner";
 
-const inputReducer = (state, action) => {
-  switch (action.type) {
-    case "CHANGE":
-      return {
-        ...state,
-        value: action.val,
-        isValid: validate(action.val, action.validators),
-      };
-    case "TOUCH": {
-      return {
-        ...state,
-        isTouched: true,
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+import LogboekWorkoutLijst from "./LogboekWorkoutLijst";
 
 const LogboekWorkout = (props) => {
-  const [inputState, dispatch] = useReducer(inputReducer, {
-    value: "",
-    isTouched: false,
-    isValid: false,
-  });
+  const history = useHistory();
+  const auth = useContext(AuthContext); // listener die luisterd naar variabelen binnen in authContext.
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const titelInputRef = useRef();
+  const beschrijvingInputRef = useRef();
 
-  const inputChangeHandler = (e) => {
-    dispatch({ type: "CHANGE", val: e.target.value, validators: [VALIDATOR_REQUIRE()] });
-  };
-
-  const touchHandler = () => {
-    dispatch({ type: "TOUCH" });
-  };
-
-  const submitWorkoutHandler = (e) => {
+  const submitWorkoutHandler = async (e) => {
     e.preventDefault();
-    if (!inputState.isValid) return console.log("Vul aub geldige waardes in.");
-    console.log("Het gaat nu naar de database");
+    clearError();
+    const enteredTitel = titelInputRef.current.value;
+    const enteredBeschrijving = beschrijvingInputRef.current.value;
+
+    try {
+      await sendRequest(
+        `${process.env.REACT_APP_BACKEND_URL}/logboek`,
+        "POST",
+        JSON.stringify({
+          titel: enteredTitel,
+          beschrijving: enteredBeschrijving,
+          maker: auth.gebruikerId,
+          categorie: "workout",
+          datum: "10-8-2021",
+        }),
+        { "Content-Type": "application/json", Authorization: "Bearer " + auth.token }
+      );
+      history.push("/Deez"); // Gebruik gemaakt van redirect in app.js zodat die automatisch de pagina refresht
+    } catch (err) {}
   };
 
   return (
     <div className="logboek__container">
+      {isLoading && <LoadingSpinner asOverlay />}
       <div className="logboek__new__workout">
         <h2>Nieuwe Workout !</h2>
+        {error && <p>{error}</p>}
         <form onSubmit={submitWorkoutHandler}>
-          <input
-            type="text"
-            placeholder="Titel"
-            onBlur={touchHandler}
-            onChange={inputChangeHandler}
+          <input type="text" ref={titelInputRef} placeholder="Titel" />
+          <textarea
+            placeholder="Beschrijf jouw workout"
+            ref={beschrijvingInputRef}
+            rows="4"
+            cols="20"
           />
-          <textarea placeholder="Beschrijf jouw workout" rows="4" cols="20" />
-          {!inputState.isValid && inputState.isTouched && <p>Vul aub iets in bij de titel</p>}
           <button type="submit">Add Workout</button>
         </form>
       </div>
 
-      <LogboekWorkoutList items={props.items} />
+      <LogboekWorkoutLijst items={props.items} />
     </div>
   );
 };

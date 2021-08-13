@@ -18,33 +18,44 @@
   padding-top: 35px;
   padding-bottom: 30px;
   padding-left: 40px;
-  padding-right: 165px;
+  padding-right: 100px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
 }
 
 .gebruikerScreen__container h2 {
   font-weight: 300;
   margin-bottom: 15px;
+  padding-right: 65px;
 }
 
 .gebruikerScreen__container h6 {
   color: #868585;
   font-size: 1rem;
   font-weight: 300;
+  padding-right: 65px;
 }
 
 .gebruikersScreen__users {
   margin-top: 35px;
+  overflow-y: auto;
+  height: 500px;
 }
 
 .gebruikersScreen__users__header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 30px;
+  padding-right: 65px;
 }
 
 .gebruikersScreen__users__header h4 {
   font-weight: 300;
   font-size: 1.5rem;
+}
+
+.gebruikersScreen__users ul {
+  padding-right: 65px;
 }
 
 .gebruikersScreen__users li {
@@ -54,11 +65,17 @@
   margin-bottom: 25px;
 }
 
+.gebruikersScreen__users li a {
+  color: black;
+}
+
 .user__info {
   display: flex;
   align-items: center;
 }
 
 .user__info img {
-  padding-right: 15px;
+  width: 120px;
+  border: 1px solid black;
+  margin-right: 15px;
 }

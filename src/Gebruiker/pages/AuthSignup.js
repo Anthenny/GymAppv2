@@ -1,42 +1,47 @@
-import React, { useRef, useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useRef, useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 
-import { AuthContext } from "../../shared/context/auth-context";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 import "../components/AuthLogin.css";
 
 const AuthSignup = () => {
-  const auth = useContext(AuthContext);
+  const history = useHistory();
   const emailInputRef = useRef();
   const naamInputRef = useRef();
+  const [file, setFile] = useState();
   const wachtwoordInputRef = useRef();
   const bevevstigWachtwoordInputRef = useRef();
   const { isLoading, error, sendRequest } = useHttpClient();
+
+  const pickHandler = (e) => {
+    let pickedFile;
+    if (e.target.files && e.target.files.length === 1) {
+      pickedFile = e.target.files[0];
+      setFile(pickedFile);
+    }
+    return pickedFile;
+  };
 
   const signupHandler = async (e) => {
     e.preventDefault();
     const enteredEmail = emailInputRef.current.value;
     const enteredNaam = naamInputRef.current.value;
+    const enteredFile = file;
     const enteredWachtwoord = wachtwoordInputRef.current.value;
     const enteredBevestigdWachtwoord = bevevstigWachtwoordInputRef.current.value;
 
     try {
-      await sendRequest(
-        "http://localhost:5000/api/gebruikers/signup",
-        "POST",
-        JSON.stringify({
-          email: enteredEmail,
-          naam: enteredNaam,
-          wachtwoord: enteredWachtwoord,
-        }),
-        {
-          "Content-Type": "application/json",
-        }
-      );
+      const formData = new FormData();
+      formData.append("email", enteredEmail);
+      formData.append("naam", enteredNaam);
+      formData.append("image", enteredFile);
+      formData.append("wachtwoord", enteredWachtwoord);
+      formData.append("bevestigWachtwoord", enteredBevestigdWachtwoord);
 
-      auth.login();
+      await sendRequest(`${process.env.REACT_APP_BACKEND_URL}/gebruikers/signup`, "POST", formData);
+      history.push("/login");
     } catch (err) {}
   };
 
@@ -52,6 +57,8 @@ const AuthSignup = () => {
         <form onSubmit={signupHandler}>
           <input type="email" ref={emailInputRef} placeholder="Vul uw email in" />
           <input type="text" ref={naamInputRef} placeholder="Vul uw naam in" />
+          <label htmlFor="img">Kies uw profiel foto(optioneel)</label>
+          <input onChange={pickHandler} type="file" accept=".jpg, .png, .jpeg" id="img" />
           <input type="password" ref={wachtwoordInputRef} placeholder="Vul uw wachtwoord in" />
           <input
             type="password"

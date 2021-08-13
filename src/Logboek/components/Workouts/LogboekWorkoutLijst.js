@@ -1,8 +1,8 @@
 import React from "react";
 import LogboekWorkoutItem from "./LogboekWorkoutItem";
 
-const LogboekWorkoutList = (props) => {
-  if (props.items.length === 0) {
+const LogboekWorkoutLijst = (props) => {
+  if (!props.items) {
     return (
       <div className="logboek__recent__workouts">
         <h2>Recent Workouts</h2>
@@ -29,8 +29,8 @@ const LogboekWorkoutList = (props) => {
         <ul>
           {props.items.map((workout) => (
             <LogboekWorkoutItem
-              key={workout.id}
-              id={workout.id}
+              key={workout._id}
+              id={workout._id}
               titel={workout.titel}
               datum={workout.datum}
             />
@@ -41,4 +41,4 @@ const LogboekWorkoutList = (props) => {
   );
 };
 
-export default LogboekWorkoutList;
+export default LogboekWorkoutLijst;

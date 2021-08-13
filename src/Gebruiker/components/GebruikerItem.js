@@ -9,7 +9,7 @@ const GebruikerItem = (props) => {
     <li>
       <Link to={`/${props.id}/logs`}>
         <div className="user__info">
-          <img src={props.image} alt={props.naam} />
+          <img src={`process.env.REACT_APP_ASSET_URL/${props.image}`} alt={props.naam} />
           <p>{props.naam}</p>
         </div>
       </Link>

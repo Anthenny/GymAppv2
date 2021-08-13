@@ -5,13 +5,13 @@ import GebruikersLijst from "../components/GebruikersLijst";
 import { useHttpClient } from "../../shared/hooks/http-hook";
 
 const Gebruikers = () => {
-  const { isLoading, error, sendRequest } = useHttpClient();
+  const { isLoading, sendRequest } = useHttpClient();
   const [loadedGebruikers, setLoadedGebruikers] = useState();
 
   useEffect(() => {
     const fetchGebruikers = async () => {
       try {
-        const responseData = await sendRequest("http://localhost:5000/api/gebruikers");
+        const responseData = await sendRequest(`${process.env.REACT_APP_BACKEND_URL}/gebruikers`);
 
         setLoadedGebruikers(responseData.gebruikers);
       } catch (err) {}

@@ -1,41 +1,45 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState, useContext } from "react";
 import { useHistory, Link } from "react-router-dom";
 import { useParams } from "react-router";
 
 import Logboek from "./Logboek";
+import { useHttpClient } from "../../shared/hooks/http-hook";
+import { AuthContext } from "../../shared/context/auth-context";
 import "../components/LogboekSpecifiek.css";
-
-const DUMMYWORKOUTLOGS = [
-  {
-    id: "l1",
-    owner: "Anthenny",
-    ownerId: "u1",
-    titel: "Borst",
-    beschrijving:
-      "Bench Press 20 KG warming up 40 KG warming up70 KG werk set 10x70KG werk set 10x Incline Bench 60 KG werk set 10x 60 KG werk set 8x60 KG werk set 6x",
-    datum: "1-8-2021",
-  },
-  {
-    id: "l2",
-    owner: "Olaf",
-    ownerId: "u2",
-    titel: "Benen",
-    beschrijving:
-      "Bench Press 20 KG warming up 40 KG warming up70 KG werk set 10x70KG werk set 10x Incline Bench 60 KG werk set 10x 60 KG werk set 8x60 KG werk set 6x",
-    datum: "1-8-2021",
-  },
-];
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 const LogboekSpecifiek = () => {
-  const LogId = useParams().logId;
-  const identifiedLog = DUMMYWORKOUTLOGS.find((log) => log.id === LogId);
+  const auth = useContext(AuthContext);
+  const { isLoading, error, sendRequest } = useHttpClient();
+  const [specifiekeLog, setSpecifiekeLog] = useState();
+  const logId = useParams().logId;
   const history = useHistory();
+
+  useEffect(() => {
+    const fetchLog = async () => {
+      try {
+        const responseData = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/logboek/${logId}`
+        );
+
+        setSpecifiekeLog(responseData.log);
+      } catch (err) {}
+    };
+
+    fetchLog();
+  }, [sendRequest, logId]);
 
   const closeModalHandler = () => {
     history.push("/");
   };
 
-  const deleteLogHandler = () => {
+  const deleteLogHandler = async () => {
+    try {
+      await sendRequest(`${process.env.REACT_APP_BACKEND_URL}/logboek/${logId}`, "DELETE", null, {
+        Authorization: "Bearer " + auth.token,
+      });
+      history.push("/deez");
+    } catch (err) {}
     console.log("Deleted");
   };
 
@@ -43,23 +47,31 @@ const LogboekSpecifiek = () => {
     <Fragment>
       <div className="BG__OVERLAY" />
       <Logboek />
-      <div className="userLogs__modal">
-        <div onClick={closeModalHandler} className="kruis">
-          X
+      {isLoading && (
+        <div className="center">
+          <LoadingSpinner />
         </div>
-        <h2>{identifiedLog.titel}</h2>
-        <div className="workout__area">
-          <p>{identifiedLog.beschrijving}</p>
+      )}
+      {!isLoading && specifiekeLog && (
+        <div className="userLogs__modal">
+          <div onClick={closeModalHandler} className="kruis">
+            X
+          </div>
+          {error && <h2>{error}</h2>}
+          <h2>{specifiekeLog.titel}</h2>
+          <div className="workout__area">
+            <p>{specifiekeLog.beschrijving}</p>
+          </div>
+          <div className="buttons">
+            <Link to={`/logboek/update/${specifiekeLog._id}`}>
+              <button className="btn update">Update</button>
+            </Link>
+            <button onClick={deleteLogHandler} className="btn delete">
+              Delete
+            </button>
+          </div>
         </div>
-        <div className="buttons">
-          <Link to={`/logboek/update/${identifiedLog.id}`}>
-            <button className="btn update">Update</button>
-          </Link>
-          <button onClick={deleteLogHandler} className="btn delete">
-            Delete
-          </button>
-        </div>
-      </div>
+      )}
     </Fragment>
   );
 };

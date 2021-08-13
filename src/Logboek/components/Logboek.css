@@ -25,6 +25,7 @@ main {
   border-radius: 10px;
   padding-top: 20px;
   padding-left: 15px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
 }
 
 .logboek__new__workout h2 {
@@ -42,6 +43,7 @@ main {
   width: 30%;
   padding: 3px 10px;
   margin-bottom: 18px;
+  outline: none;
 }
 
 .logboek__new__workout form textarea {
@@ -49,6 +51,12 @@ main {
   width: 50%;
   height: 125px;
   overflow-y: scroll;
+  outline: none;
+}
+
+.logboek__new__workout form textarea:focus,
+input:focus {
+  border: 0.3px solid #4528d5;
 }
 
 .logboek__new__workout form textarea::-webkit-scrollbar-track {
@@ -94,6 +102,7 @@ main {
   padding-top: 20px;
   padding-left: 15px;
   padding-right: 80px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
 }
 
 .logboek__recent__workouts h2 {

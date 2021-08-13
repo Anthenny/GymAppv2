@@ -1,50 +1,56 @@
-import React, { Fragment, useState } from "react";
-import { useHistory, Link } from "react-router-dom";
+import React, { Fragment, useState, useEffect, useRef, useContext } from "react";
+import { useHistory } from "react-router-dom";
 import { useParams } from "react-router";
 
 import Logboek from "./Logboek";
+import { useHttpClient } from "../../shared/hooks/http-hook";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import "../components//UpdateLog.css";
-
-const DUMMYWORKOUTLOGS = [
-  {
-    id: "l1",
-    owner: "Anthenny",
-    ownerId: "u1",
-    titel: "Borst",
-    beschrijving:
-      "Bench Press 20 KG warming up 40 KG warming up70 KG werk set 10x70KG werk set 10x Incline Bench 60 KG werk set 10x 60 KG werk set 8x60 KG werk set 6x",
-    datum: "1-8-2021",
-  },
-  {
-    id: "l2",
-    owner: "Olaf",
-    ownerId: "u2",
-    titel: "Benen",
-    beschrijving:
-      "Bench Press 20 KG warming up 40 KG warming up70 KG werk set 10x70KG werk set 10x Incline Bench 60 KG werk set 10x 60 KG werk set 8x60 KG werk set 6x",
-    datum: "1-8-2021",
-  },
-];
+import { AuthContext } from "../../shared/context/auth-context";
 
 const UpdateLog = () => {
+  const auth = useContext(AuthContext);
+  const { isLoading, sendRequest } = useHttpClient();
+  const [specifiekeLog, setSpecifiekeLog] = useState();
+  const titelInputRef = useRef();
+  const beschrijvingInputRef = useRef();
   const history = useHistory();
   const logId = useParams().logId;
-  const identifiedLog = DUMMYWORKOUTLOGS.find((workout) => workout.id === logId);
-  const [input, setInput] = useState(identifiedLog.titel);
-  const [textarea, setTextarea] = useState(identifiedLog.beschrijving);
 
-  if (!identifiedLog) return <h2> Kon deze workout niet vinden</h2>;
+  useEffect(() => {
+    const fetchLog = async () => {
+      try {
+        const responseData = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/logboek/${logId}`
+        );
+        setSpecifiekeLog(responseData.log);
+      } catch (err) {}
+    };
+    fetchLog();
+  }, [sendRequest, logId]);
 
-  const inputHandler = (e) => {
-    setInput(e.target.value);
-  };
+  if (!specifiekeLog) return <h2> Kon deze workout niet vinden</h2>;
 
-  const textareaHandler = (e) => {
-    setTextarea(e.target.value);
-  };
-
-  const submitUpdateFormHandler = (e) => {
+  const submitUpdateFormHandler = async (e) => {
     e.preventDefault();
+    const enteredTitel = titelInputRef.current.value;
+    const enteredBeschrijving = beschrijvingInputRef.current.value;
+
+    try {
+      await sendRequest(
+        `${process.env.REACT_APP_BACKEND_URL}/logboek/${logId}`,
+        "PATCH",
+        JSON.stringify({
+          titel: enteredTitel,
+          beschrijving: enteredBeschrijving,
+        }),
+        {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + auth.token,
+        }
+      );
+      history.push("/");
+    } catch (err) {}
   };
 
   const closeModalHandler = () => {
@@ -55,21 +61,33 @@ const UpdateLog = () => {
     <Fragment>
       <div className="BG__OVERLAY" />
       <Logboek />
-      <div className="userLogs__modal">
-        <div onClick={closeModalHandler} className="kruis">
-          X
+      {isLoading && (
+        <div className="center">
+          <LoadingSpinner />
         </div>
-        <h2>Update {identifiedLog.titel}</h2>
-        <div className="updateLog__update__velden">
-          <form onSubmit={submitUpdateFormHandler}>
-            <input type="text" value={input} onChange={inputHandler} />
-            <textarea value={textarea} onChange={textareaHandler} rows="4" cols="20" />
-            <button type="submit" className="btn update">
-              Update
-            </button>
-          </form>
+      )}
+      {!isLoading && specifiekeLog && (
+        <div className="userLogs__modal">
+          <div onClick={closeModalHandler} className="kruis">
+            X
+          </div>
+          <h2>Update {specifiekeLog.titel}</h2>
+          <div className="updateLog__update__velden">
+            <form onSubmit={submitUpdateFormHandler}>
+              <input defaultValue={specifiekeLog.titel} ref={titelInputRef} type="text" />
+              <textarea
+                defaultValue={specifiekeLog.beschrijving}
+                ref={beschrijvingInputRef}
+                rows="4"
+                cols="20"
+              />
+              <button type="submit" className="btn update">
+                Update
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      )}
     </Fragment>
   );
 };

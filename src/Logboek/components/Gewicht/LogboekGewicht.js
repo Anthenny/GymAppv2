@@ -1,71 +1,56 @@
-import React, { Fragment, useReducer } from "react";
+import React, { Fragment, useRef, useContext } from "react";
+
 import LogboekGewichtLijst from "./LogboekGewichtLijst";
-
-import { validate, VALIDATOR_REQUIRE } from "../../../utils/validators";
-
-const inputReducer = (state, action) => {
-  switch (action.type) {
-    case "CHANGE":
-      return {
-        ...state,
-        value: action.val,
-        isValid: validate(action.val, action.validators),
-      };
-    case "TOUCH": {
-      return {
-        ...state,
-        isTouched: true,
-      };
-    }
-
-    default:
-      return state;
-  }
-};
+import { useHttpClient } from "../../../shared/hooks/http-hook";
+import LoadingSpinner from "../../../shared/components/UIElements/LoadingSpinner";
+import { AuthContext } from "../../../shared/context/auth-context";
 
 const LogboekGewicht = (props) => {
-  const [inputState, dispatch] = useReducer(inputReducer, {
-    value: "",
-    isTouched: false,
-    isValid: false,
-  });
+  const auth = useContext(AuthContext);
+  const gewichtInputRef = useRef();
+  const beschrijvingInputRef = useRef();
+  const { isLoading, error, clearError, sendRequest } = useHttpClient();
 
-  const inputChangeHandler = (e) => {
-    dispatch({ type: "CHANGE", val: e.target.value, validators: [VALIDATOR_REQUIRE()] });
-  };
-
-  const touchHandler = () => {
-    dispatch({ type: "TOUCH" });
-  };
-
-  const submitWorkoutHandler = (e) => {
+  const submitWorkoutHandler = async (e) => {
     e.preventDefault();
-    if (!inputState.isValid) return console.log("Vul aub geldige waardes in bij gewicht");
-    console.log("Het gaat nu naar de database");
+    clearError();
+    const enteredGewicht = gewichtInputRef.current.value;
+    const enteredBeschrijving = beschrijvingInputRef.current.value;
+
+    try {
+      await sendRequest(
+        `${process.env.REACT_APP_BACKEND_URL}/logboek`,
+        "POST",
+        JSON.stringify({
+          titel: enteredGewicht,
+          beschrijving: enteredBeschrijving,
+          maker: auth.gebruikerId,
+          categorie: "gewicht",
+          datum: "10-8-2021",
+        }),
+        { "Content-Type": "application/json", Authorization: "Bearer " + auth.token }
+      );
+    } catch (err) {}
+
+    gewichtInputRef.current.value = "";
+    beschrijvingInputRef.current.value = "";
   };
 
   return (
     <Fragment>
       <div className="logboek__container">
+        {isLoading && <LoadingSpinner asOverlay />}
         <div className="logboek__new__workout">
           <h2>Vul je gewicht in</h2>
-          <form
-            onSubmit={submitWorkoutHandler}
-            className={`${!inputState.isValid && inputState.isTouched && "form__control__invalid"}`}
-          >
-            <input
-              type="text"
-              onBlur={touchHandler}
-              onChange={inputChangeHandler}
-              placeholder="Vul je gewicht in"
-              value={inputState.value}
-            />
+          {error && <p>{error}</p>}
+          <form onSubmit={submitWorkoutHandler}>
+            <input type="text" ref={gewichtInputRef} placeholder="Vul je gewicht in" />
             <textarea
               placeholder="Eventuele toelichting kcal iname cardio etc."
+              ref={beschrijvingInputRef}
               rows="4"
               cols="20"
             />
-            {!inputState.isValid && inputState.isTouched && <p>Vul aub iets in bij gewicht</p>}
             <button type="submit">Add Weight</button>
           </form>
         </div>

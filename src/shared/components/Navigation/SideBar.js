@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { AuthContext } from "../../context/auth-context";
@@ -37,7 +37,7 @@ const SideBar = () => {
             {!auth.isLoggedIn && (
               <li>
                 <NavLink to="/login" activeClassName="active">
-                  <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
+                  <FontAwesomeIcon className="sidebar__icon" icon="sign-in-alt" />
                   Log in
                 </NavLink>
               </li>
@@ -45,17 +45,17 @@ const SideBar = () => {
             {!auth.isLoggedIn && (
               <li>
                 <NavLink to="/signup" activeClassName="active">
-                  <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
+                  <FontAwesomeIcon className="sidebar__icon" icon="user-plus" />
                   Sign up
                 </NavLink>
               </li>
             )}
             {auth.isLoggedIn && (
               <li>
-                <a onClick={auth.logout} href="#">
+                <Link onClick={auth.logout} to="#">
                   <FontAwesomeIcon className="sidebar__icon" icon="sign-out-alt" />
                   Log out
-                </a>
+                </Link>
               </li>
             )}
           </ul>

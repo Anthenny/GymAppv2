@@ -1,32 +1,44 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect, useState, useContext } from "react";
 
 import LogboekWorkout from "../components/Workouts/LogboekWorkout";
 import LogboekGewicht from "../components/Gewicht/LogboekGewicht";
+import { useHttpClient } from "../../shared/hooks/http-hook";
+import { AuthContext } from "../../shared/context/auth-context";
+import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 
 import "../components/Logboek.css";
 
 const Logboek = () => {
-  const WORKOUTLOGS = [
-    {
-      id: "l1",
-      titel: "Borst",
-      datum: "1-8-2021",
-    },
-  ];
+  // filter het in de backend in 2 verschillende json keys op gewicht en workout
+  const auth = useContext(AuthContext);
+  const [workoutLogs, setWorkoutLogs] = useState();
+  const [gewichtLogs, setGewichtLogs] = useState();
+  const { isLoading, sendRequest } = useHttpClient();
 
-  const GEWICHTLOGS = [
-    {
-      id: "g1",
-      gewicht: "90 KG",
-      datum: "1-8-2021",
-    },
-  ];
+  useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const responseData = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/logboek/gebruiker/${auth.gebruikerId}`
+        );
+
+        setGewichtLogs(responseData.gebruikerGewichtLogs);
+        setWorkoutLogs(responseData.gebruikerWorkoutLogs);
+      } catch (err) {}
+    };
+    fetchLogs();
+  }, [sendRequest, auth.gebruikerId]);
 
   return (
     <Fragment>
       <main>
-        <LogboekWorkout items={WORKOUTLOGS} />
-        <LogboekGewicht items={GEWICHTLOGS} />
+        {isLoading && (
+          <div className="center">
+            <LoadingSpinner />
+          </div>
+        )}
+        {!isLoading && <LogboekWorkout items={workoutLogs} />}
+        {!isLoading && <LogboekGewicht items={gewichtLogs} />}
       </main>
     </Fragment>
   );

@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import { AuthContext } from "../../shared/context/auth-context";
@@ -10,7 +10,7 @@ const AuthLogin = () => {
   const auth = useContext(AuthContext);
   const emailInputRef = useRef();
   const wachtwoordInputRef = useRef();
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const { isLoading, error, sendRequest } = useHttpClient();
 
   const submitLoginHandler = async (e) => {
     e.preventDefault();
@@ -18,8 +18,8 @@ const AuthLogin = () => {
     const enteredWachtwoord = wachtwoordInputRef.current.value;
 
     try {
-      await sendRequest(
-        "http://localhost:5000/api/gebruikers/login",
+      const responseData = await sendRequest(
+        `${process.env.REACT_APP_BACKEND_URL}/gebruikers/login`,
         "POST",
         JSON.stringify({
           email: enteredEmail,
@@ -29,7 +29,7 @@ const AuthLogin = () => {
           "Content-Type": "application/json",
         }
       );
-      auth.login();
+      auth.login(responseData.gebruikerId, responseData.gebruiker, responseData.token);
     } catch (err) {}
   };
 

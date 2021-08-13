@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import UserLogsLijst from "../components/UserLogsLijst/UserLogsLijst";
