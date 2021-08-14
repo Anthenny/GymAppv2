@@ -14,13 +14,13 @@ router.get("/gebruiker/:gebruikerId", logboekControllers.getLogsByUserId);
 router.use(checkAuth);
 router.post(
   "/",
-  [check("titel").not().isEmpty(), check("beschrijving").not().isEmpty().isLength({ min: 5 })],
+  [check("titel").not().isEmpty(), check("beschrijving").not().isEmpty().isLength({ min: 3 })],
   logboekControllers.createLog
 );
 
 router.patch(
   "/:logId",
-  [check("titel").not().isEmpty(), check("beschrijving").not().isEmpty().isLength({ min: 5 })],
+  [check("titel").not().isEmpty(), check("beschrijving").not().isEmpty().isLength({ min: 3 })],
   logboekControllers.updateLog
 );
 

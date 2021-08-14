@@ -12,6 +12,8 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
+app.use(express.static(path.join("public")));
+
 app.use((req, res, next) => {
   // Je hebt 3 headers nodig 1e is hoe het heet 2e argument is vanwaar ze je api mogen gebruiken. ipv * zet je dan localhost:3000
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -27,8 +29,8 @@ app.use((req, res, next) => {
 app.use("/api/logboek", logboekRoutes); // 1e argument zet standaard /api/logboek/ voor elke route in logboekRoutes
 app.use("/api/gebruikers", gebruikerRoutes);
 
-app.use("*", (req, res, next) => {
-  return next(new HttpError("Could not find this route", 404));
+app.use((req, res, next) => {
+  res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
 // Deze middleware wordt geroepen als 1 van de bovenstaande routes een error geeft omdat het 4 argumenten heeft.
