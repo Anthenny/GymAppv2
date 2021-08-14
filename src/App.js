@@ -1,16 +1,10 @@
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
-import { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, Suspense } from "react";
 
-import Gebruikers from "./Gebruiker/pages/Gebruikers";
-import Logboek from "./Logboek/pages/Logboek";
-import UserLogs from "./Logboek/pages/UserLogs";
-import LogboekSpecifiek from "./Logboek/pages/LogboekSpecifiek";
 import Nav from "./shared/components/Navigation/Nav";
 import SideBar from "./shared/components/Navigation/SideBar";
-import UpdateLog from "./Logboek/pages/UpdateLog";
-import AuthLogin from "./Gebruiker/pages/AuthLogin";
-import AuthSignup from "./Gebruiker/pages/AuthSignup";
 import { AuthContext } from "./shared/context/auth-context";
+import LoadingSpinner from "./shared/components/UIElements/LoadingSpinner";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
@@ -21,6 +15,13 @@ import {
   faUserPlus,
 } from "@fortawesome/free-solid-svg-icons";
 library.add(faClipboard, faUser, faSignOutAlt, faSignInAlt, faUserPlus);
+
+const Gebruikers = React.lazy(() => import("./Gebruiker/pages/Gebruikers"));
+const Logboek = React.lazy(() => import("./Logboek/pages/Logboek"));
+const LogboekSpecifiek = React.lazy(() => import("./Logboek/pages/LogboekSpecifiek"));
+const UpdateLog = React.lazy(() => import("./Logboek/pages/UpdateLog"));
+const AuthLogin = React.lazy(() => import("./Gebruiker/pages/AuthLogin"));
+const AuthSignup = React.lazy(() => import("./Gebruiker/pages/AuthSignup"));
 
 function App() {
   const [token, setToken] = useState(false);
@@ -73,9 +74,6 @@ function App() {
         <Route path="/gebruikers" exact>
           <Gebruikers />
         </Route>
-        <Route path="/:userId/logs" exact>
-          <UserLogs />
-        </Route>
         <Route path="/logboek/:logId" exact>
           <LogboekSpecifiek />
         </Route>
@@ -100,9 +98,6 @@ function App() {
         <Route path="/gebruikers" exact>
           <Gebruikers />
         </Route>
-        <Route path="/:userId/logs" exact>
-          <UserLogs />
-        </Route>
         <Route path="*">
           <Redirect to="/login" />
         </Route>
@@ -125,7 +120,15 @@ function App() {
       <Router>
         <Nav />
         <SideBar />
-        {routes}
+        <Suspense
+          fallback={
+            <div className="center">
+              <LoadingSpinner />
+            </div>
+          }
+        >
+          {routes}
+        </Suspense>
       </Router>
     </AuthContext.Provider>
   );

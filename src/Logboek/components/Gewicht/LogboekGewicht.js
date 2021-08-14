@@ -1,4 +1,5 @@
 import React, { Fragment, useRef, useContext } from "react";
+import { useHistory } from "react-router-dom";
 
 import LogboekGewichtLijst from "./LogboekGewichtLijst";
 import { useHttpClient } from "../../../shared/hooks/http-hook";
@@ -6,6 +7,7 @@ import LoadingSpinner from "../../../shared/components/UIElements/LoadingSpinner
 import { AuthContext } from "../../../shared/context/auth-context";
 
 const LogboekGewicht = (props) => {
+  const history = useHistory();
   const auth = useContext(AuthContext);
   const gewichtInputRef = useRef();
   const beschrijvingInputRef = useRef();
@@ -30,10 +32,8 @@ const LogboekGewicht = (props) => {
         }),
         { "Content-Type": "application/json", Authorization: "Bearer " + auth.token }
       );
+      history.push("/Deez");
     } catch (err) {}
-
-    gewichtInputRef.current.value = "";
-    beschrijvingInputRef.current.value = "";
   };
 
   return (
